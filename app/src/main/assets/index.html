@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#f7f8fb"><meta name="theme-color" content="#1477f8"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><link rel="manifest" href="manifest.webmanifest"><link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="icon-192.png"><title>Mis Cuentas PRO</title>
+<style>
+:root{--bg:#f7f8fb;--card:#fff;--text:#141820;--muted:#7d8490;--blue:#1477f8;--green:#35c994;--red:#ef6c73;--line:#edf0f4}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:Arial,sans-serif;color:var(--text)}
+.app{max-width:520px;margin:auto;min-height:100vh;padding:20px 18px 105px}
+.top{display:flex;justify-content:space-between;align-items:center;margin:6px 4px 24px}
+.title{font-size:28px;font-weight:800}.year{border:0;background:transparent;font-size:18px;font-weight:700}
+.balance,.mini,.movement,.panel{background:var(--card);border-radius:22px;box-shadow:0 8px 30px rgba(30,45,70,.06)}
+.balance{text-align:center;padding:30px 20px;margin-bottom:16px}.label{font-size:12px;color:var(--muted);font-weight:700;letter-spacing:.7px}
+.money{font-size:34px;font-weight:800;margin-top:9px}.twocol{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.mini{padding:22px}.mini .money{font-size:24px}.green{color:var(--green)}.red{color:var(--red)}
+.section{font-size:20px;font-weight:800;margin:27px 4px 12px}.movement{display:grid;grid-template-columns:48px 1fr auto;gap:12px;align-items:center;padding:15px;margin-bottom:10px}
+.ico{width:48px;height:48px;border-radius:15px;background:#f3f5f8;display:grid;place-items:center;font-size:22px}
+.mname{font-weight:750}.sub{font-size:13px;color:var(--muted);margin-top:4px}.amt{font-weight:800;text-align:right}
+.fab{position:fixed;right:max(22px,calc((100vw - 520px)/2 + 22px));bottom:90px;width:62px;height:62px;border-radius:50%;border:0;background:var(--blue);color:white;font-size:34px;box-shadow:0 9px 25px rgba(20,119,248,.35)}
+.nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:min(100%,520px);height:74px;background:white;border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(5,1fr);z-index:5}
+.nav button{border:0;background:white;color:#737b87;font-size:11px}.nav .active{color:var(--blue);font-weight:800}.nav span{display:block;font-size:22px;margin-bottom:3px}
+.page{display:none}.page.active{display:block}.panel{padding:18px;margin-bottom:12px}
+input,select{width:100%;padding:13px;border:1px solid #e3e7ed;border-radius:12px;font-size:16px;background:white;margin:5px 0 12px}
+.primary{width:100%;border:0;border-radius:14px;background:var(--blue);color:#fff;font-weight:800;padding:14px;font-size:16px}
+.secondary{width:100%;border:1px solid #e1e5ea;border-radius:14px;background:white;color:var(--text);font-weight:700;padding:13px;margin-top:8px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}.small{font-size:12px;color:var(--muted)}
+.monthgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}.monthgrid button{padding:14px 5px;border:0;background:white;border-radius:14px;box-shadow:0 4px 18px rgba(30,45,70,.05);font-weight:700}
+
+.badge{display:inline-block;padding:5px 9px;border-radius:999px;background:#eef5ff;color:var(--blue);font-size:11px;font-weight:800}
+.actions{display:flex;gap:7px;margin-top:8px}.tiny{border:0;border-radius:9px;padding:7px 9px;font-weight:700;background:#f0f2f5;color:#555}
+.danger{color:#d94d55}.check{display:flex;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}.check input{width:auto;margin:0}
+.reportTable{width:100%;border-collapse:collapse;font-size:12px}.reportTable th,.reportTable td{padding:8px 4px;border-bottom:1px solid var(--line);text-align:right}.reportTable th:first-child,.reportTable td:first-child{text-align:left}
+textarea{width:100%;min-height:90px;border:1px solid #e3e7ed;border-radius:12px;padding:12px}
+@media (prefers-color-scheme:dark){:root{--bg:#202022;--card:#101011;--text:#f5f5f6;--muted:#898995;--line:#292a2d}input,select,textarea{background:#111;color:#f5f5f6;border-color:#414247}.monthgrid button,.secondary{background:#111;color:#f5f5f6;border-color:#414247}.nav,.nav button{background:#151022}.badge{background:#14263e}}
+
+@media print{
+ body{background:#fff!important;color:#000!important}
+ body *{visibility:hidden!important}
+ #monthlyReport,#monthlyReport *{visibility:visible!important}
+ #monthlyReport{position:absolute;left:0;top:0;width:100%;background:#fff!important;color:#000!important;padding:10px}
+ #monthlyReport .reportTable{color:#000!important}
+ #monthlyReport .reportTable th,#monthlyReport .reportTable td{border-color:#ccc!important}
+}
+#lockScreen{position:fixed;inset:0;z-index:9999;background:var(--bg);display:none;align-items:center;justify-content:center;padding:24px}#lockScreen .panel{width:min(420px,100%);text-align:center}#lockScreen input{text-align:center;font-size:24px;letter-spacing:7px}body.hideFab .fab{display:none!important}
+.versionMark{text-align:center;color:var(--muted);font-size:11px;padding:12px 0 92px}
+#pdfPreviewPage,#pdfPreviewPage *{color:#111!important}#pdfPreviewPage .reportTable th,#pdfPreviewPage .reportTable td{border-color:#bbb!important}
+</style><link rel="stylesheet" href="theme.css"></head>
+<body><div id="lockScreen"><div class="panel"><h2>Mis Cuentas PRO</h2><p class="small">Introduce tu PIN</p><input id="pinEntry" type="password" inputmode="numeric" maxlength="8"><button class="primary" onclick="unlockApp()">Entrar</button><p id="pinError" class="small red"></p></div></div><div class="app">
+<header class="account-strip"><div><span class="eyebrow">TU NEGOCIO, AL DÍA</span><div id="accountName">Modo local</div></div><button class="tiny" onclick="show('settings')">Mi cuenta ↗</button></header><p id="syncStatus" class="sync-status" role="status" aria-live="polite">Abriendo tu copia local…</p><div id="home" class="page active">
+ <div class="top"><div class="title">Mis Cuentas PRO</div><select id="year" class="year"></select></div>
+ <div class="balance"><div class="label">BALANCE TOTAL</div><div id="balance" class="money">0,00 €</div></div>
+ <div class="twocol"><div class="mini"><div class="label">INGRESOS</div><div id="income" class="money green">+0,00 €</div></div><div class="mini"><div class="label">GASTOS</div><div id="expense" class="money red">-0,00 €</div></div></div>
+ <div class="section">Movimientos recientes</div><div id="recent"></div>
+</div>
+<div id="moves" class="page">
+ <div class="top"><div class="title">Movimientos</div></div>
+ <div class="panel"><div class="section" style="margin-top:0">Meses</div><div id="months" class="monthgrid"></div></div>
+ <div id="monthList"></div>
+</div>
+<div id="reports" class="page"><div class="top"><div class="title">Informes</div></div>
+<div class="panel"><b>Resumen trimestral</b><p class="small">Base de ingresos, gastos, IVA e IRPF orientativo.</p><div id="quarters"></div></div>
+<div class="panel" id="monthlyPanel"><b>Informe mensual</b><select id="reportMonth"></select><button class="primary" onclick="buildMonthlyReport()">Ver informe</button><div id="monthlyReport"></div><div id="pdfActions" style="display:none;margin-top:12px"><button class="secondary" onclick="viewMonthlyPDF()">👁️ Ver PDF</button><button class="secondary" onclick="printMonthlyReport()">🖨️ Imprimir / Guardar PDF</button></div></div>
+<div class="panel"><b>Control gestoría</b><select id="gestMonth"></select><button class="primary" onclick="renderGestoria()">Abrir mes</button><div id="gestoria"></div></div>
+</div>
+<div id="cash" class="page"><div class="top"><div class="title">Caja / Banco</div></div><div class="panel"><b>Control de efectivo</b><p class="small">Los ingresos originales se consideran efectivo. Registra aquí lo que ingresas en el banco.</p><input id="bankDate" type="date"><input id="bankAmount" inputmode="decimal" placeholder="Importe ingresado en banco"><button class="primary" onclick="addBank()">Añadir ingreso al banco</button></div><div id="cashSummary"></div><div class="section">Historial de ingresos al banco</div><div id="bankHistory"></div></div>
+<div id="settings" class="page"><div class="top"><div class="title">Configuración</div></div><section class="panel account-panel"><span class="eyebrow">MÓVIL + ORDENADOR</span><h2>Tu cuenta, tus cuentas</h2><p class="small">Accede con el mismo correo en ambos dispositivos. Sin conexión puedes seguir trabajando con tu copia local.</p><div id="authForm"><fieldset id="authControls"><label for="authEmail">Correo electrónico</label><input id="authEmail" type="email" autocomplete="username" placeholder="tu@correo.com"><label for="authPassword">Contraseña</label><input id="authPassword" type="password" autocomplete="current-password" minlength="6" placeholder="Al menos 6 caracteres"><button class="primary" onclick="accountAction('login')">Iniciar sesión</button><button class="secondary" onclick="accountAction('register')">Crear cuenta</button></fieldset></div><div id="signedIn" hidden><button class="primary" onclick="syncCloud(true)">Sincronizar ahora</button><button class="secondary" onclick="importGuest()">Copiar datos del modo local a esta cuenta</button><button id="signOut" class="secondary" onclick="accountAction('logout')">Cerrar sesión</button></div><p id="authMessage" class="small" role="alert"></p><div id="conflictPanel" hidden><h3>Hay dos copias diferentes</h3><p>Exporta primero tu copia actual si quieres revisarla. Al elegir se conservará una copia de recuperación en este dispositivo.</p><button class="secondary" onclick="exportData()">Exportar copia actual</button><button class="secondary" onclick="resolveConflict(false)">Usar copia de la nube</button><button class="secondary" onclick="resolveConflict(true)">Usar esta copia local</button></div><button class="secondary" onclick="exportRecovery()">Exportar copias de recuperación</button></section><div class="panel"><label>Nombre / negocio</label><input id="owner"><label>IRPF trimestral estimado %</label><input id="irpf" type="number" step=".1"><button class="primary" onclick="saveSettings()">Guardar configuración</button><div class="section">Seguridad local</div><p class="small">PIN opcional para proteger esta app en este dispositivo.</p><input id="pinNew" inputmode="numeric" maxlength="8" placeholder="PIN de 4 a 8 cifras"><button class="secondary" onclick="setPin()">Activar / cambiar PIN</button><button class="secondary" onclick="removePin()">Quitar PIN</button><div class="section">Aplicación</div>
+<button class="secondary" onclick="shareApp()">Compartir Mis Cuentas PRO</button>
+<div class="section">Copias de seguridad</div><button class="secondary" onclick="exportData()">Exportar copia de seguridad</button><button class="secondary" onclick="printMonthlyReport()">Imprimir / Guardar informe mensual en PDF</button><label class="secondary" style="display:block;text-align:center">Importar copia<input id="importFile" type="file" accept=".json" onchange="importData(event)" style="display:none"></label></div></div>
+</div>
+<button aria-label="Añadir movimiento" class="fab" onclick="openAdd()">+</button>
+<div class="versionMark">Mis Cuentas PRO · 2.0.0 · Android + Web</div><div class="nav">
+<button class="active" onclick="show('home',this)"><span>⌂</span>Inicio</button>
+<button onclick="show('moves',this)"><span>☷</span>Movimientos</button>
+<button onclick="show('reports',this)"><span>▥</span>Informes</button>
+<button onclick="show('cash',this)"><span>▣</span>Caja/Banco</button>
+<button onclick="show('settings',this)"><span>⚙</span>Ajustes</button>
+</div>
+<dialog id="dlg" style="border:0;border-radius:22px;width:min(92%,460px);padding:22px">
+<h2 style="margin-top:0">Nuevo movimiento</h2>
+<div class="row"><div><label>Tipo</label><select id="type"><option>Ingreso</option><option>Gasto</option></select></div><div><label>Fecha</label><input id="date" type="date"></div></div>
+<label>Concepto</label><input id="concept" placeholder="Ej. Venta, material...">
+<div id="expenseFiscalFields" style="display:none">
+<label>Categoría del gasto</label><select id="expenseCategory" onchange="applyExpenseCategory()">
+<option value="material">Compras / materiales</option><option value="gestoria">Gestoría / servicios profesionales</option><option value="autonomos">Cuota de autónomos (RETA)</option><option value="suministros">Suministros</option><option value="alquiler">Alquiler</option><option value="seguros">Seguros</option><option value="transporte">Vehículo / transporte</option><option value="formacion">Formación</option><option value="otros">Otros gastos</option></select>
+<p id="fiscalHint" class="small"></p>
+</div>
+<label>Total €</label><input id="total" inputmode="decimal" placeholder="0,00">
+<div class="row"><div><label>IVA %</label><input id="vat" type="number" value="21"></div><div><label>Retención %</label><input id="withholding" type="number" value="0"></div></div>
+<div id="deductibleFields" style="display:none"><label class="check"><input id="irpfDeductible" type="checkbox" checked><span>Gasto deducible en IRPF</span></label><label class="check"><input id="vatDeductible" type="checkbox" checked><span>IVA deducible</span></label><p class="small">Estas opciones permiten reflejar casos particulares. Conserva la factura o justificante y confirma con tu gestor cuando exista duda.</p></div>
+<button class="primary" onclick="addMovement()">Guardar movimiento</button><button class="secondary" onclick="dlg.close()">Cancelar</button>
+</dialog>
+<script src="store.js"></script><script src="vendor/firebase-app-compat.js"></script><script src="vendor/firebase-auth-compat.js"></script><script src="vendor/firebase-firestore-compat.js"></script><script src="boot.js"></script></body></html>
