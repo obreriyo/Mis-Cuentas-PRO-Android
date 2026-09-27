@@ -1,31 +1,41 @@
 name: Validar y compilar Mis Cuentas PRO
+
 on:
   workflow_dispatch:
   push:
     branches: [main, master]
   pull_request:
+
 permissions:
   contents: read
+
 jobs:
   build:
     runs-on: ubuntu-latest
     timeout-minutes: 25
+
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+
       - name: Validar app y cálculos originales
         run: node tests/verify.cjs
+
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '17'
-           - name: Instalar SDK Android
+
+      - name: Instalar SDK Android
         run: sdkmanager "platforms;android-35" "build-tools;35.0.0"
+
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.9'
+
       - name: Recuperar firma debug estable si está configurada
         env:
           DEBUG_KEYSTORE: ${{ secrets.ANDROID_DEBUG_KEYSTORE_BASE64 }}
@@ -34,12 +44,14 @@ jobs:
             mkdir -p "$HOME/.android"
             printf '%s' "$DEBUG_KEYSTORE" | base64 --decode > "$HOME/.android/debug.keystore"
           else
-            echo '::warning::APK de prueba con firma temporal. Para actualizar una instalación existente necesitas su misma firma.'
+            echo "No hay keystore estable configurado; se usará la firma debug."
           fi
+
       - name: Compilar y revisar Android
-        run: gradle --no-daemon assembleDebug lintDebug
+        run: gradle :app:assembleDebug --stacktrace
+
       - uses: actions/upload-artifact@v4
         with:
-          name: Mis-Cuentas-PRO-2.0.0-APK-debug
+          name: Mis-Cuentas-PRO-APK
           path: app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
