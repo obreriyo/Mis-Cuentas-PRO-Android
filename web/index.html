@@ -43,9 +43,11 @@ textarea{width:100%;min-height:90px;border:1px solid #e3e7ed;border-radius:12px;
 }
 #lockScreen{position:fixed;inset:0;z-index:9999;background:var(--bg);display:none;align-items:center;justify-content:center;padding:24px}#lockScreen .panel{width:min(420px,100%);text-align:center}#lockScreen input{text-align:center;font-size:24px;letter-spacing:7px}body.hideFab .fab{display:none!important}
 .versionMark{text-align:center;color:var(--muted);font-size:11px;padding:12px 0 92px}
+.account-strip{display:flex;justify-content:space-between;align-items:center;margin:0 4px 10px;padding:10px 2px}.eyebrow{font-size:10px;font-weight:800;letter-spacing:.8px;color:var(--muted)}.sync-status{font-size:11px;color:var(--muted);margin:0 4px 14px}.account-panel h2{margin:5px 0 8px}
 #pdfPreviewPage,#pdfPreviewPage *{color:#111!important}#pdfPreviewPage .reportTable th,#pdfPreviewPage .reportTable td{border-color:#bbb!important}
 </style></head>
 <body><div id="lockScreen"><div class="panel"><h2>Mis Cuentas PRO</h2><p class="small">Introduce tu PIN</p><input id="pinEntry" type="password" inputmode="numeric" maxlength="8"><button class="primary" onclick="unlockApp()">Entrar</button><p id="pinError" class="small red"></p></div></div><div class="app">
+<header class="account-strip"><div><span class="eyebrow">TU NEGOCIO, AL DÍA</span><div id="accountName">Modo local</div></div><button class="tiny" onclick="show('settings')">Mi cuenta ↗</button></header><p id="syncStatus" class="sync-status" role="status" aria-live="polite">Abriendo tu copia local…</p>
 <div id="home" class="page active">
  <div class="top"><div class="title">Mis Cuentas PRO</div><select id="year" class="year"></select></div>
  <div class="balance"><div class="label">BALANCE TOTAL</div><div id="balance" class="money">0,00 €</div></div>
@@ -64,7 +66,7 @@ textarea{width:100%;min-height:90px;border:1px solid #e3e7ed;border-radius:12px;
 <div class="panel"><b>Beneficios</b><p class="small">Resultado mensual con ingresos reales y contables, gastos y reserva estimada para Hacienda.</p><select id="benefitMonth" onchange="renderBenefits()"></select><div id="benefits"></div></div>
 </div>
 <div id="cash" class="page"><div class="top"><div class="title">Caja / Banco</div></div><div class="panel"><b>Control de efectivo</b><p class="small">La caja se calcula con los ingresos contables y se acumula mes a mes. Registra aquí lo que ingresas en el banco.</p><input id="bankDate" type="date"><input id="bankAmount" inputmode="decimal" placeholder="Importe ingresado en banco"><button class="primary" onclick="addBank()">Añadir ingreso al banco</button></div><div id="cashSummary"></div><div class="section">Historial de ingresos al banco</div><div id="bankHistory"></div></div>
-<div id="settings" class="page"><div class="top"><div class="title">Configuración</div></div><div class="panel"><label>Nombre / negocio</label><input id="owner"><label>IRPF trimestral estimado %</label><input id="irpf" type="number" step=".1"><button class="primary" onclick="saveSettings()">Guardar configuración</button><div class="section">Seguridad local</div><p class="small">PIN opcional para proteger esta app en este dispositivo.</p><input id="pinNew" inputmode="numeric" maxlength="8" placeholder="PIN de 4 a 8 cifras"><button class="secondary" onclick="setPin()">Activar / cambiar PIN</button><button class="secondary" onclick="removePin()">Quitar PIN</button><div class="section">Aplicación</div>
+<div id="settings" class="page"><div class="top"><div class="title">Configuración</div></div><section class="panel account-panel"><span class="eyebrow">MÓVIL + ORDENADOR</span><h2>Tu cuenta, tus cuentas</h2><p class="small">Accede con el mismo correo en ambos dispositivos. Sin conexión puedes seguir trabajando con tu copia local.</p><div id="authForm"><fieldset id="authControls"><label for="authEmail">Correo electrónico</label><input id="authEmail" type="email" autocomplete="username" placeholder="tu@correo.com"><label for="authPassword">Contraseña</label><input id="authPassword" type="password" autocomplete="current-password" minlength="6" placeholder="Al menos 6 caracteres"><button class="primary" onclick="accountAction('login')">Iniciar sesión</button><button class="secondary" onclick="accountAction('register')">Crear cuenta</button></fieldset></div><div id="signedIn" hidden><button class="primary" onclick="syncCloud(true)">Sincronizar ahora</button><button class="secondary" onclick="importGuest()">Copiar datos del modo local a esta cuenta</button><button id="signOut" class="secondary" onclick="accountAction('logout')">Cerrar sesión</button></div><p id="authMessage" class="small" role="alert"></p><div id="conflictPanel" hidden><h3>Hay dos copias diferentes</h3><p>Exporta primero tu copia actual si quieres revisarla. Al elegir se conservará una copia de recuperación en este dispositivo.</p><button class="secondary" onclick="exportData()">Exportar copia actual</button><button class="secondary" onclick="resolveConflict(false)">Usar copia de la nube</button><button class="secondary" onclick="resolveConflict(true)">Usar esta copia local</button></div><button class="secondary" onclick="exportRecovery()">Exportar copias de recuperación</button></section><div class="panel"><label>Nombre / negocio</label><input id="owner"><label>IRPF trimestral estimado %</label><input id="irpf" type="number" step=".1"><button class="primary" onclick="saveSettings()">Guardar configuración</button><div class="section">Seguridad local</div><p class="small">PIN opcional para proteger esta app en este dispositivo.</p><input id="pinNew" inputmode="numeric" maxlength="8" placeholder="PIN de 4 a 8 cifras"><button class="secondary" onclick="setPin()">Activar / cambiar PIN</button><button class="secondary" onclick="removePin()">Quitar PIN</button><div class="section">Aplicación</div>
 <button class="secondary" onclick="shareApp()">Compartir Mis Cuentas PRO</button>
 <div class="section">Copias de seguridad</div><button class="secondary" onclick="exportData()">Exportar copia de seguridad</button><button class="secondary" onclick="saveMonthlyPDF()">Guardar / compartir informe mensual en PDF</button><button class="secondary" onclick="printMonthlyReport()">Imprimir informe mensual</button><label class="secondary" style="display:block;text-align:center">Importar copia<input id="importFile" type="file" accept=".json" onchange="importData(event)" style="display:none"></label></div></div>
 </div>
@@ -90,14 +92,15 @@ textarea{width:100%;min-height:90px;border:1px solid #e3e7ed;border-radius:12px;
 <div id="deductibleFields" style="display:none"><label class="check"><input id="irpfDeductible" type="checkbox" checked><span>Gasto deducible en IRPF</span></label><label class="check"><input id="vatDeductible" type="checkbox" checked><span>IVA deducible</span></label><p class="small">Estas opciones permiten reflejar casos particulares. Conserva la factura o justificante y confirma con tu gestor cuando exista duda.</p></div>
 <button class="primary" onclick="addMovement()">Guardar movimiento</button><button class="secondary" onclick="dlg.close()">Cancelar</button>
 </dialog>
+<script src="store.js"></script>
 <script>
 const MONTHS=["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
 const KEY="mis_cuentas_pro_web_v1";
-let data=JSON.parse(localStorage.getItem(KEY)||'null')||{movements:[],bank:[],settings:{owner:"",irpf:20},nonworking:[],gestIncome:{}};
+let data=MCPStore.open(null);
 data.movements=data.movements||[];data.bank=data.bank||[];data.settings=data.settings||{owner:"",irpf:20};data.nonworking=data.nonworking||[];data.gestIncome=data.gestIncome||{};
 data.movements.forEach(m=>{if(m.accounting==null)m.accounting=+m.total||0;if(m.gestoria==null)m.gestoria=false;if(m.type==="Gasto"){if(m.category==null)m.category="otros";if(m.irpfDeductible==null)m.irpfDeductible=true;if(m.vatDeductible==null)m.vatDeductible=true}});
 const eur=n=>Number(n||0).toLocaleString("es-ES",{minimumFractionDigits:2,maximumFractionDigits:2})+" €";
-function save(){localStorage.setItem(KEY,JSON.stringify(data));render()}
+function save(){try{MCPStore.save(data);render();if(window.scheduleSync)scheduleSync()}catch(e){alert('No se pudo guardar: '+e.message+'. Exporta una copia antes de cerrar.');throw e}}
 function currentYear(){return +document.getElementById("year").value}
 let handlingAndroidBack=false;
 function activatePage(id,b){
@@ -112,7 +115,7 @@ function show(id,b){
  if(!handlingAndroidBack && history.state?.page!==id) history.pushState({mcp:true,page:id},"",location.href);
 }
 function init(){
- let y=new Date().getFullYear(), sel=document.getElementById("year");for(let n=y-5;n<=y+5;n++)sel.add(new Option(n,n));sel.value=y;sel.onchange=render;
+ let y=new Date().getFullYear(), sel=document.getElementById("year"),years=[...data.movements.map(x=>+String(x.date).slice(0,4)),...data.bank.map(x=>+String(x.date).slice(0,4))].filter(Number.isFinite),min=Math.min(y-10,...years),max=Math.max(y+20,...years);for(let n=min;n<=max;n++)sel.add(new Option(n,n));sel.value=y;sel.onchange=render;
  owner.value=data.settings.owner||"";irpf.value=data.settings.irpf??20;
  date.value=new Date().toISOString().slice(0,10);bankDate.value=date.value;
  months.innerHTML=MONTHS.map((m,i)=>`<button onclick="renderMonth(${i+1})">${m}</button>`).join("");
@@ -145,7 +148,8 @@ const EXPENSE_PRESETS={
  otros:{vat:21,irpf:false,vatDed:false,hint:"Otros gastos queda sin deducción automática. Marca IRPF y/o IVA únicamente si el gasto está vinculado a la actividad y cumple los requisitos."}
 };
 function applyExpenseCategory(){let p=EXPENSE_PRESETS[expenseCategory.value]||EXPENSE_PRESETS.otros;vat.disabled=false;vat.value=p.vat;irpfDeductible.checked=p.irpf;vatDeductible.checked=p.vatDed;vat.disabled=!!p.lockVat;fiscalHint.textContent=p.hint}
-function openAdd(){date.value=new Date().toISOString().slice(0,10);type.value="Ingreso";vat.value=21;withholding.value=0;syncMovementForm();dlg.showModal()}
+function dateForSelectedYear(){let now=new Date(),y=currentYear(),m=now.getMonth()+1,d=now.getDate(),last=new Date(y,m,0).getDate();d=Math.min(d,last);return `${y}-${String(m).padStart(2,"0")}-${String(d).padStart(2,"0")}`}
+function openAdd(){date.value=dateForSelectedYear();type.value="Ingreso";vat.value=21;withholding.value=0;syncMovementForm();dlg.showModal()}
 type.addEventListener("change",syncMovementForm);
 function addMovement(){let n=parseFloat(total.value.replace(",","."));if(!date.value||!n)return alert("Indica fecha e importe.");if(type.value==="Ingreso"&&data.nonworking.includes(date.value))return alert("Este día está marcado como no trabajado. No puedes registrar ingresos en esta fecha.");let isExpense=type.value==="Gasto",c=isExpense?expenseCategory.value:null,v=+vat.value||0;if(c==="autonomos")v=0;data.movements.push({id:Date.now(),type:type.value,date:date.value,concept:concept.value,total:n,accounting:n,vat:v,withholding:+withholding.value||0,gestoria:false,category:c,irpfDeductible:isExpense?irpfDeductible.checked:false,vatDeductible:isExpense?vatDeductible.checked:false});concept.value="";total.value="";dlg.close();save()}
 function renderMonth(m){
@@ -191,7 +195,7 @@ function renderBenefits(){
  <div class="small" style="margin-top:8px;line-height:1.7">
  Ingreso real: <b>${eur(b.incomeReal)}</b><br>
  Ingresos contables: <b>${eur(b.incomeAccounting)}</b><br>
- Diferencia real - contable: <b>${eur(b.difference)}</b><br>
+ Diferencia real - contable: <b class="red">${eur(b.difference)}</b><br>
  Gastos: <b>${eur(b.expenses)}</b><br>
  Sueldo contable: <b>${eur(b.salaryAccounting)}</b><br>
  Hacienda estimada: <b>${eur(b.taxEstimate)}</b> <span style="white-space:nowrap">(IVA ${eur(b.ivaEstimate)} + IRPF ${eur(b.irpfEstimate)})</span><br>
@@ -208,7 +212,7 @@ function renderCash(){
    let dep=data.bank.filter(x=>+x.date.slice(0,4)==y&&+x.date.slice(5,7)==m)
      .reduce((a,x)=>a+(+x.amount||0),0);
    cash+=incAccounting-dep;
-   out+=`<div class="movement"><div class="ico">${m}</div><div><div class="mname">${MONTHS[m-1]}</div><div class="sub">Ingreso contable ${eur(incAccounting)} · Banco ${eur(dep)}</div></div><div class="amt">${eur(cash)}<div class="small">caja acumulada</div></div></div>`;
+   out+=`<div class="movement"><div class="ico">${m}</div><div><div class="mname">${MONTHS[m-1]}</div><div class="sub">Ingreso contable ${eur(incAccounting)}<br>Banco ${eur(dep)}</div></div><div class="amt">${eur(cash)}<div class="small">caja acumulada</div></div></div>`;
  }
  cashSummary.innerHTML=out;
  bankHistory.innerHTML=data.bank.filter(x=>+x.date.slice(0,4)==y).sort((a,b)=>b.date.localeCompare(a.date)).map(x=>`<div class="movement"><div class="ico">€</div><div><div class="mname">Ingreso al banco</div><div class="sub">${x.date}</div></div><div class="amt">${eur(x.amount)}<div><button class="tiny danger" onclick="deleteBank(${x.id})">Borrar</button></div></div></div>`).join("")||'<div class="panel small">Sin ingresos al banco.</div>';
@@ -281,6 +285,7 @@ async function downloadFileCompat(blob,name){
  // En Android WebView los enlaces blob: pueden no llegar al gestor de descargas.
  // Un data: URL conserva el archivo dentro del documento y evita esa limitación.
  const href=await blobToDataURL(blob);
+ if(window.AndroidFiles && typeof window.AndroidFiles.saveFile==="function"){window.AndroidFiles.saveFile(href.split(',')[1],name,blob.type);return}
  const a=document.createElement("a");a.href=href;a.download=name;a.setAttribute("download",name);a.style.display="none";
  document.body.appendChild(a);a.click();setTimeout(()=>a.remove(),1500);
 }
@@ -289,22 +294,24 @@ async function saveMonthlyPDF(){
  try{
   buildMonthlyReport();
   const blob=makeMonthlyPdfBytes(),m=+document.getElementById("reportMonth").value,y=currentYear(),name=`Mis_Cuentas_PRO_${y}_${String(m).padStart(2,"0")}.pdf`;
+  if(window.AndroidFiles && typeof window.AndroidFiles.saveFile==="function"){await downloadFileCompat(blob,name);return}
   const file=new File([blob],name,{type:"application/pdf"});
   if(navigator.share && (!navigator.canShare || navigator.canShare({files:[file]}))){await navigator.share({files:[file],title:name});return}
   await downloadFileCompat(blob,name);
-  alert("Tu Android no ofrece el selector de compartir desde esta WebView. El PDF se ha enviado al gestor de descargas.");
- }catch(e){if(e&&e.name==="AbortError")return;console.error(e);alert("No se pudo abrir el selector para guardar/compartir. Prueba con Descargar PDF.")}
+ }catch(e){if(e&&e.name==="AbortError")return;console.error(e);alert("No se pudo guardar/compartir el PDF.")}
 }
 function printMonthlyReport(){
  buildMonthlyReport();
- const el=document.getElementById("monthlyReport");if(!el)return;
- const w=window.open("","_blank");
- if(!w){alert("No se pudo abrir la vista de impresión.");return}
- w.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>Mis Cuentas PRO</title><style>body{font-family:Arial,sans-serif;color:#111;padding:24px}table{border-collapse:collapse;width:100%}th,td{border:1px solid #bbb;padding:8px;text-align:right}th:first-child,td:first-child{text-align:left}@media print{body{padding:0}}</style></head><body>${el.innerHTML}<script>setTimeout(()=>window.print(),300)<\/script></body></html>`);w.document.close();
+ const preview=document.getElementById("pdfPreviewOverlay");
+ if(preview)preview.style.display="none";
+ setTimeout(()=>{
+  try{if(window.AndroidPrint&&typeof window.AndroidPrint.printPage==="function")window.AndroidPrint.printPage();else window.print()}
+  finally{if(preview)setTimeout(()=>preview.style.display="block",800)}
+ },150);
 }
 function saveSettings(){data.settings.owner=owner.value.trim();data.settings.irpf=+irpf.value||20;save();alert("Guardado")}
 async function exportData(){try{const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});await downloadFileCompat(blob,"mis_cuentas_pro_copia.json")}catch(e){console.error(e);alert("No se pudo exportar la copia en este dispositivo.")}}
-function importData(e){let f=e.target.files[0];if(!f)return;let r=new FileReader();r.onload=()=>{try{data=JSON.parse(r.result);save();owner.value=data.settings?.owner||"";irpf.value=data.settings?.irpf??20;alert("Copia importada")}catch{alert("Archivo no válido")}};r.readAsText(f)}
+function importData(e){let f=e.target.files[0];if(!f)return;let r=new FileReader();r.onload=()=>{try{const imported=MCPStore.validate(JSON.parse(r.result));if(!confirm("¿Sustituir los datos actuales por esta copia? Se conservará una copia de recuperación."))return;MCPStore.backup(data,"antes_importar");data=imported;save();owner.value=data.settings?.owner||"";irpf.value=data.settings?.irpf??20;alert("Copia importada")}catch{alert("Archivo no válido")}};r.readAsText(f)}
 init();
 async function hashPin(v){let b=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(v));return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,"0")).join("")}
 async function setPin(){let v=(pinNew.value||"").trim();if(!/^\d{4,8}$/.test(v)){alert("El PIN debe tener entre 4 y 8 cifras.");return}localStorage.setItem("mcp_pin_hash",await hashPin(v));pinNew.value="";alert("PIN activado en este dispositivo.")}
@@ -352,4 +359,4 @@ function updateFabForPage(){
 }
 document.addEventListener("click",()=>setTimeout(updateFabForPage,0));
 window.addEventListener("load",updateFabForPage);
-</script></body></html>
+</script><script src="vendor/firebase-app-compat.js"></script><script src="vendor/firebase-auth-compat.js"></script><script src="vendor/firebase-firestore-compat.js"></script><script src="cloud.js"></script></body></html>
