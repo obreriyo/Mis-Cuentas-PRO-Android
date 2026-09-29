@@ -6,7 +6,7 @@
 <style>
 :root{--bg:#f7f8fb;--card:#fff;--text:#141820;--muted:#7d8490;--blue:#1477f8;--green:#35c994;--red:#ef6c73;--line:#edf0f4}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:Arial,sans-serif;color:var(--text)}
-.app{max-width:520px;margin:auto;min-height:100vh;padding:20px 18px calc(105px + env(safe-area-inset-bottom,0px))}
+.app{max-width:520px;margin:auto;min-height:100vh;padding:20px 18px 105px}
 .top{display:flex;justify-content:space-between;align-items:center;margin:6px 4px 24px}
 .title{font-size:28px;font-weight:800}.year{border:0;background:transparent;font-size:18px;font-weight:700}
 .balance,.mini,.movement,.panel{background:var(--card);border-radius:22px;box-shadow:0 8px 30px rgba(30,45,70,.06)}
@@ -16,8 +16,8 @@
 .section{font-size:20px;font-weight:800;margin:27px 4px 12px}.movement{display:grid;grid-template-columns:48px 1fr auto;gap:12px;align-items:center;padding:15px;margin-bottom:10px}
 .ico{width:48px;height:48px;border-radius:15px;background:#f3f5f8;display:grid;place-items:center;font-size:22px}
 .mname{font-weight:750}.sub{font-size:13px;color:var(--muted);margin-top:4px}.amt{font-weight:800;text-align:right}
-.fab{position:fixed;right:max(22px,calc((100vw - 520px)/2 + 22px));bottom:calc(90px + env(safe-area-inset-bottom,0px));width:62px;height:62px;border-radius:50%;border:0;background:var(--blue);color:white;font-size:34px;box-shadow:0 9px 25px rgba(20,119,248,.35)}
-.nav{position:fixed;bottom:env(safe-area-inset-bottom,0px);left:50%;transform:translateX(-50%);width:min(100%,520px);height:74px;background:white;border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(5,1fr);z-index:5}
+.fab{position:fixed;right:max(22px,calc((100vw - 520px)/2 + 22px));bottom:90px;width:62px;height:62px;border-radius:50%;border:0;background:var(--blue);color:white;font-size:34px;box-shadow:0 9px 25px rgba(20,119,248,.35)}
+.nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:min(100%,520px);height:74px;background:white;border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(5,1fr);z-index:5}
 .nav button{border:0;background:white;color:#737b87;font-size:11px}.nav .active{color:var(--blue);font-weight:800}.nav span{display:block;font-size:22px;margin-bottom:3px}
 .page{display:none}.page.active{display:block}.panel{padding:18px;margin-bottom:12px}
 input,select{width:100%;padding:13px;border:1px solid #e3e7ed;border-radius:12px;font-size:16px;background:white;margin:5px 0 12px}
@@ -59,17 +59,17 @@ textarea{width:100%;min-height:90px;border:1px solid #e3e7ed;border-radius:12px;
 </div>
 <div id="reports" class="page"><div class="top"><div class="title">Informes</div></div>
 <div class="panel"><b>Resumen trimestral</b><p class="small">Base de ingresos, gastos, IVA e IRPF orientativo.</p><div id="quarters"></div></div>
-<div class="panel"><b>Informe mensual</b><select id="reportMonth"></select><button class="primary" onclick="buildMonthlyReport()">Ver informe</button><div id="monthlyReport"></div><div id="pdfActions" style="display:none;margin-top:12px"><button class="secondary" onclick="viewMonthlyPDF()">👁️ Ver PDF</button><button class="secondary" onclick="printMonthlyReport()">🖨️ Imprimir / Guardar PDF</button></div></div>
+<div class="panel"><b>Informe mensual</b><select id="reportMonth"></select><button class="primary" onclick="buildMonthlyReport()">Ver informe</button><div id="monthlyReport"></div><div id="pdfActions" style="display:none;margin-top:12px"><button class="secondary" onclick="viewMonthlyPDF()">👁️ Ver PDF</button><button class="secondary" onclick="saveMonthlyPDF()">💾 Guardar / compartir PDF</button><button class="secondary" onclick="printMonthlyReport()">🖨️ Imprimir</button></div></div>
 <div class="panel"><b>Control gestoría</b><select id="gestMonth"></select><button class="primary" onclick="renderGestoria()">Abrir mes</button><div id="gestoria"></div></div>
-<div class="panel"><b>Beneficios</b><p class="small">Resultado mensual calculado con tus ingresos, gastos y una reserva estimada para Hacienda.</p><div id="benefits"></div></div>
+<div class="panel"><b>Beneficios</b><p class="small">Resultado mensual con ingresos reales y contables, gastos y reserva estimada para Hacienda.</p><select id="benefitMonth" onchange="renderBenefits()"></select><div id="benefits"></div></div>
 </div>
-<div id="cash" class="page"><div class="top"><div class="title">Caja / Banco</div></div><div class="panel"><b>Control de efectivo</b><p class="small">Los ingresos originales se consideran efectivo. Registra aquí lo que ingresas en el banco.</p><input id="bankDate" type="date"><input id="bankAmount" inputmode="decimal" placeholder="Importe ingresado en banco"><button class="primary" onclick="addBank()">Añadir ingreso al banco</button></div><div id="cashSummary"></div><div class="section">Historial de ingresos al banco</div><div id="bankHistory"></div></div>
+<div id="cash" class="page"><div class="top"><div class="title">Caja / Banco</div></div><div class="panel"><b>Control de efectivo</b><p class="small">La caja se calcula con los ingresos contables y se acumula mes a mes. Registra aquí lo que ingresas en el banco.</p><input id="bankDate" type="date"><input id="bankAmount" inputmode="decimal" placeholder="Importe ingresado en banco"><button class="primary" onclick="addBank()">Añadir ingreso al banco</button></div><div id="cashSummary"></div><div class="section">Historial de ingresos al banco</div><div id="bankHistory"></div></div>
 <div id="settings" class="page"><div class="top"><div class="title">Configuración</div></div><div class="panel"><label>Nombre / negocio</label><input id="owner"><label>IRPF trimestral estimado %</label><input id="irpf" type="number" step=".1"><button class="primary" onclick="saveSettings()">Guardar configuración</button><div class="section">Seguridad local</div><p class="small">PIN opcional para proteger esta app en este dispositivo.</p><input id="pinNew" inputmode="numeric" maxlength="8" placeholder="PIN de 4 a 8 cifras"><button class="secondary" onclick="setPin()">Activar / cambiar PIN</button><button class="secondary" onclick="removePin()">Quitar PIN</button><div class="section">Aplicación</div>
 <button class="secondary" onclick="shareApp()">Compartir Mis Cuentas PRO</button>
-<div class="section">Copias de seguridad</div><button class="secondary" onclick="exportData()">Exportar copia de seguridad</button><button class="secondary" onclick="printMonthlyReport()">Imprimir / Guardar informe mensual en PDF</button><label class="secondary" style="display:block;text-align:center">Importar copia<input id="importFile" type="file" accept=".json" onchange="importData(event)" style="display:none"></label></div></div>
+<div class="section">Copias de seguridad</div><button class="secondary" onclick="exportData()">Exportar copia de seguridad</button><button class="secondary" onclick="saveMonthlyPDF()">Guardar / compartir informe mensual en PDF</button><button class="secondary" onclick="printMonthlyReport()">Imprimir informe mensual</button><label class="secondary" style="display:block;text-align:center">Importar copia<input id="importFile" type="file" accept=".json" onchange="importData(event)" style="display:none"></label></div></div>
 </div>
 <button class="fab" onclick="openAdd()">+</button>
-<div class="versionMark">Mis Cuentas PRO · v20</div><div class="nav">
+<div class="versionMark">Mis Cuentas PRO · v21</div><div class="nav">
 <button class="active" onclick="show('home',this)"><span>⌂</span>Inicio</button>
 <button onclick="show('moves',this)"><span>☷</span>Movimientos</button>
 <button onclick="show('reports',this)"><span>▥</span>Informes</button>
@@ -116,7 +116,7 @@ function init(){
  owner.value=data.settings.owner||"";irpf.value=data.settings.irpf??20;
  date.value=new Date().toISOString().slice(0,10);bankDate.value=date.value;
  months.innerHTML=MONTHS.map((m,i)=>`<button onclick="renderMonth(${i+1})">${m}</button>`).join("");
- [reportMonth,gestMonth].forEach(sel=>{sel.innerHTML=MONTHS.map((m,i)=>`<option value="${i+1}">${m}</option>`).join("");sel.value=new Date().getMonth()+1});render()
+ [reportMonth,gestMonth,benefitMonth].forEach(sel=>{sel.innerHTML=MONTHS.map((m,i)=>`<option value="${i+1}">${m}</option>`).join("");sel.value=new Date().getMonth()+1});render()
 }
 function vals(m){let t=+m.total||0,r=+m.vat||0,base=t/(1+r/100);return{base,vat:t-base,total:t}}
 function render(){
@@ -161,41 +161,58 @@ function renderMonth(m){
 }
 function toggleDay(d){let i=data.nonworking.indexOf(d);if(i>=0){data.nonworking.splice(i,1)}else{let existing=data.movements.filter(x=>x.type==="Ingreso"&&x.date===d);if(existing.length){alert(`No puedes marcar este día como no trabajado porque tiene ${existing.length} ingreso${existing.length>1?"s":""} registrado${existing.length>1?"s":""}. Borra o cambia primero esos ingresos.`);return}data.nonworking.push(d)}save();renderMonth(+d.slice(5,7))}
 function renderQuarters(){let y=currentYear(),p=+data.settings.irpf||20,out="";for(let q=0;q<4;q++){let arr=data.movements.filter(m=>+m.date.slice(0,4)==y&&Math.floor((+m.date.slice(5,7)-1)/3)==q),ib=0,eb=0,iv=0,ev=0,ret=0;arr.forEach(m=>{let v=vals({...m,total:m.accounting??m.total});if(m.type=="Ingreso"){ib+=v.base;iv+=v.vat;ret+=v.base*(+m.withholding||0)/100}else{if(m.irpfDeductible!==false)eb+=v.base;if(m.vatDeductible!==false)ev+=v.vat}});let iva=iv-ev,irp=Math.max(0,(ib-eb)*p/100-ret);out+=`<div class="movement"><div class="ico">${q+1}T</div><div><div class="mname">Trimestre ${q+1}</div><div class="sub">IVA estimado ${eur(iva)}</div></div><div class="amt">${eur(irp)}<div class="small">IRPF</div></div></div>`}quarters.innerHTML=out}
+
 function monthlyBenefit(y,m){
  let arr=data.movements.filter(x=>+x.date.slice(0,4)==y&&+x.date.slice(5,7)==m),p=+data.settings.irpf||20;
- let incomeAccounting=0,expenses=0,ib=0,eb=0,iv=0,ev=0,ret=0;
+ let incomeReal=0,incomeAccounting=0,expenses=0,ib=0,eb=0,iv=0,ev=0,ret=0;
  arr.forEach(x=>{
    let accounting=+(x.accounting??x.total)||0,v=vals({...x,total:accounting});
    if(x.type==="Ingreso"){
-     incomeAccounting+=accounting;ib+=v.base;iv+=v.vat;ret+=v.base*(+x.withholding||0)/100;
+     incomeReal+=+x.total||0;incomeAccounting+=accounting;ib+=v.base;iv+=v.vat;ret+=v.base*(+x.withholding||0)/100;
    }else{
-     expenses+=+(x.total||0);
+     expenses+=+x.total||0;
      if(x.irpfDeductible!==false)eb+=v.base;
      if(x.vatDeductible!==false)ev+=v.vat;
    }
  });
+ let difference=incomeReal-incomeAccounting;
  let salaryAccounting=incomeAccounting-expenses;
  let ivaEstimate=Math.max(0,iv-ev);
  let irpfEstimate=Math.max(0,(ib-eb)*p/100-ret);
  let taxEstimate=ivaEstimate+irpfEstimate;
  let salaryNet=salaryAccounting-taxEstimate;
- let incomeCash=arr.filter(x=>x.type==="Ingreso").reduce((a,x)=>a+(+x.total||0),0);
- let bankMonth=data.bank.filter(x=>+x.date.slice(0,4)==y&&+x.date.slice(5,7)==m).reduce((a,x)=>a+(+x.amount||0),0);
- let cashMonth=incomeCash-bankMonth;
- let salaryPlusCash=salaryNet+cashMonth;
- return{incomeAccounting,expenses,salaryAccounting,ivaEstimate,irpfEstimate,taxEstimate,salaryNet,cashMonth,salaryPlusCash};
+ return{incomeReal,incomeAccounting,difference,expenses,salaryAccounting,ivaEstimate,irpfEstimate,taxEstimate,salaryNet};
 }
 function renderBenefits(){
- const box=document.getElementById("benefits");if(!box)return;
- let y=currentYear(),out="";
- for(let m=1;m<=12;m++){
-   let b=monthlyBenefit(y,m);
-   out+=`<div style="border-top:1px solid var(--line);padding:14px 0"><div style="display:flex;justify-content:space-between;align-items:center;gap:12px"><b>${MONTHS[m-1]}</b><b class="green">${eur(b.salaryPlusCash)}</b></div><div class="small" style="margin-top:8px;line-height:1.65">Ingresos contables: <b>${eur(b.incomeAccounting)}</b><br>Gastos: <b>${eur(b.expenses)}</b><br>Sueldo contable: <b>${eur(b.salaryAccounting)}</b><br>Hacienda estimada: <b>${eur(b.taxEstimate)}</b> <span style="white-space:nowrap">(IVA ${eur(b.ivaEstimate)} + IRPF ${eur(b.irpfEstimate)})</span><br>Sueldo contable neto: <b>${eur(b.salaryNet)}</b><br>Caja del mes: <b>${eur(b.cashMonth)}</b><br><span style="font-size:14px;color:var(--text)"><b>Sueldo + caja: ${eur(b.salaryPlusCash)}</b></span></div></div>`;
- }
- box.innerHTML=out;
+ const box=document.getElementById("benefits"),sel=document.getElementById("benefitMonth");if(!box||!sel)return;
+ let y=currentYear(),m=+sel.value||new Date().getMonth()+1,b=monthlyBenefit(y,m);
+ box.innerHTML=`<div style="border-top:1px solid var(--line);padding:14px 0">
+ <div style="display:flex;justify-content:space-between;align-items:center;gap:12px"><b>${MONTHS[m-1]} ${y}</b><b class="green">${eur(b.salaryNet)}</b></div>
+ <div class="small" style="margin-top:8px;line-height:1.7">
+ Ingreso real: <b>${eur(b.incomeReal)}</b><br>
+ Ingresos contables: <b>${eur(b.incomeAccounting)}</b><br>
+ Diferencia real - contable: <b>${eur(b.difference)}</b><br>
+ Gastos: <b>${eur(b.expenses)}</b><br>
+ Sueldo contable: <b>${eur(b.salaryAccounting)}</b><br>
+ Hacienda estimada: <b>${eur(b.taxEstimate)}</b> <span style="white-space:nowrap">(IVA ${eur(b.ivaEstimate)} + IRPF ${eur(b.irpfEstimate)})</span><br>
+ <span style="font-size:14px;color:var(--text)"><b>Sueldo contable neto: ${eur(b.salaryNet)}</b></span>
+ </div></div>`;
 }
+
 function addBank(){let n=parseFloat(bankAmount.value.replace(",","."));if(!bankDate.value||!n)return alert("Indica fecha e importe.");data.bank.push({id:Date.now(),date:bankDate.value,amount:n});bankAmount.value="";save()}
-function renderCash(){let y=currentYear(),cash=0,bank=0,out="";for(let m=1;m<=12;m++){let inc=data.movements.filter(x=>x.type=="Ingreso"&&+x.date.slice(0,4)==y&&+x.date.slice(5,7)==m).reduce((a,x)=>a+(+x.total||0),0);let dep=data.bank.filter(x=>+x.date.slice(0,4)==y&&+x.date.slice(5,7)==m).reduce((a,x)=>a+(+x.amount||0),0);cash+=inc-dep;bank+=dep;out+=`<div class="movement"><div class="ico">${m}</div><div><div class="mname">${MONTHS[m-1]}</div><div class="sub">Banco ${eur(dep)}</div></div><div class="amt">${eur(cash)}<div class="small">caja</div></div></div>`}cashSummary.innerHTML=out;bankHistory.innerHTML=data.bank.filter(x=>+x.date.slice(0,4)==y).sort((a,b)=>b.date.localeCompare(a.date)).map(x=>`<div class="movement"><div class="ico">€</div><div><div class="mname">Ingreso al banco</div><div class="sub">${x.date}</div></div><div class="amt">${eur(x.amount)}<div><button class="tiny danger" onclick="deleteBank(${x.id})">Borrar</button></div></div></div>`).join("")||'<div class="panel small">Sin ingresos al banco.</div>'}
+function renderCash(){
+ let y=currentYear(),cash=0,out="";
+ for(let m=1;m<=12;m++){
+   let incAccounting=data.movements.filter(x=>x.type==="Ingreso"&&+x.date.slice(0,4)==y&&+x.date.slice(5,7)==m)
+     .reduce((a,x)=>a+(+(x.accounting??x.total)||0),0);
+   let dep=data.bank.filter(x=>+x.date.slice(0,4)==y&&+x.date.slice(5,7)==m)
+     .reduce((a,x)=>a+(+x.amount||0),0);
+   cash+=incAccounting-dep;
+   out+=`<div class="movement"><div class="ico">${m}</div><div><div class="mname">${MONTHS[m-1]}</div><div class="sub">Ingreso contable ${eur(incAccounting)} · Banco ${eur(dep)}</div></div><div class="amt">${eur(cash)}<div class="small">caja acumulada</div></div></div>`;
+ }
+ cashSummary.innerHTML=out;
+ bankHistory.innerHTML=data.bank.filter(x=>+x.date.slice(0,4)==y).sort((a,b)=>b.date.localeCompare(a.date)).map(x=>`<div class="movement"><div class="ico">€</div><div><div class="mname">Ingreso al banco</div><div class="sub">${x.date}</div></div><div class="amt">${eur(x.amount)}<div><button class="tiny danger" onclick="deleteBank(${x.id})">Borrar</button></div></div></div>`).join("")||'<div class="panel small">Sin ingresos al banco.</div>';
+}
 function monthlyIncomeRows(){
  let y=currentYear(),m=+document.getElementById("reportMonth").value,days={};
  data.movements.filter(x=>x.type==="Ingreso"&&+x.date.slice(0,4)==y&&+x.date.slice(5,7)==m&&!data.nonworking.includes(x.date)).forEach(x=>{
@@ -254,7 +271,7 @@ function viewMonthlyPDF(){
  else trs+=`<tr><th>TOTAL MES</th><th>${eur(tt)}</th><th>${eur(tb)}</th></tr>`;
  let old=document.getElementById("pdfPreviewOverlay");if(old)old.remove();
  let o=document.createElement("div");o.id="pdfPreviewOverlay";o.style.cssText="position:fixed;inset:0;z-index:99999;background:#e9edf2;overflow:auto;padding:14px";
- o.innerHTML=`<div style="max-width:820px;margin:0 auto"><div style="position:sticky;top:0;z-index:2;display:flex;gap:8px;padding:8px 0;background:#e9edf2"><button class="primary" style="flex:1" onclick="document.getElementById('pdfPreviewOverlay').remove()">← Volver</button><button class="secondary" style="flex:1;background:#111;color:#fff;border-color:#111" onclick="printMonthlyReport()">🖨️ Imprimir / Guardar PDF</button></div><div id="pdfPreviewPage" style="background:#fff;color:#111;min-height:75vh;padding:28px 20px;box-shadow:0 2px 12px #0002"><h2 style="margin:0 0 5px;color:#111">${data.settings.owner||"Nombre de empresa"}</h2><div style="margin-bottom:22px;color:#555">Registro de ingresos · ${MONTHS[m-1]} ${y}</div><table class="reportTable" style="width:100%;color:#111"><tr><th>Fecha</th><th>Efectivo + IVA</th><th>Base imponible</th></tr>${trs}</table></div></div>`;
+ o.innerHTML=`<div style="max-width:820px;margin:0 auto"><div style="position:sticky;top:0;z-index:2;display:flex;gap:8px;padding:8px 0;background:#e9edf2"><button class="primary" style="flex:1" onclick="document.getElementById('pdfPreviewOverlay').remove()">← Volver</button><button class="secondary" style="flex:1;background:#111;color:#fff;border-color:#111" onclick="saveMonthlyPDF()">💾 Guardar / compartir</button><button class="secondary" style="flex:1" onclick="printMonthlyReport()">🖨️ Imprimir</button></div><div id="pdfPreviewPage" style="background:#fff;color:#111;min-height:75vh;padding:28px 20px;box-shadow:0 2px 12px #0002"><h2 style="margin:0 0 5px;color:#111">${data.settings.owner||"Nombre de empresa"}</h2><div style="margin-bottom:22px;color:#555">Registro de ingresos · ${MONTHS[m-1]} ${y}</div><table class="reportTable" style="width:100%;color:#111"><tr><th>Fecha</th><th>Efectivo + IVA</th><th>Base imponible</th></tr>${trs}</table></div></div>`;
  document.body.appendChild(o);
 }
 async function blobToDataURL(blob){
@@ -280,19 +297,10 @@ async function saveMonthlyPDF(){
 }
 function printMonthlyReport(){
  buildMonthlyReport();
- const preview=document.getElementById("pdfPreviewOverlay");
- if(preview) preview.style.display="none";
- setTimeout(()=>{
-   try{
-     if(window.AndroidPrint && typeof window.AndroidPrint.printPage === "function"){
-       window.AndroidPrint.printPage();
-     }else{
-       window.print();
-     }
-   } finally {
-     if(preview) setTimeout(()=>preview.style.display="block",800);
-   }
- },150);
+ const el=document.getElementById("monthlyReport");if(!el)return;
+ const w=window.open("","_blank");
+ if(!w){alert("No se pudo abrir la vista de impresión.");return}
+ w.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>Mis Cuentas PRO</title><style>body{font-family:Arial,sans-serif;color:#111;padding:24px}table{border-collapse:collapse;width:100%}th,td{border:1px solid #bbb;padding:8px;text-align:right}th:first-child,td:first-child{text-align:left}@media print{body{padding:0}}</style></head><body>${el.innerHTML}<script>setTimeout(()=>window.print(),300)<\/script></body></html>`);w.document.close();
 }
 function saveSettings(){data.settings.owner=owner.value.trim();data.settings.irpf=+irpf.value||20;save();alert("Guardado")}
 async function exportData(){try{const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});await downloadFileCompat(blob,"mis_cuentas_pro_copia.json")}catch(e){console.error(e);alert("No se pudo exportar la copia en este dispositivo.")}}
