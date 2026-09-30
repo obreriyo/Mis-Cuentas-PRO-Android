@@ -5,10 +5,10 @@
 <meta name="theme-color" content="#f7f8fb"><meta name="theme-color" content="#1477f8"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><link rel="manifest" href="manifest.webmanifest"><link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="icon-192.png"><title>Mis Cuentas PRO</title>
 <style>
 :root{--bg:#f7f8fb;--card:#fff;--text:#141820;--muted:#7d8490;--blue:#1477f8;--green:#35c994;--red:#ef6c73;--line:#edf0f4}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:Arial,sans-serif;color:var(--text)}
-.app{max-width:520px;margin:auto;min-height:100vh;padding:20px 18px 105px}
-.top{display:flex;justify-content:space-between;align-items:center;margin:6px 4px 24px}
-.title{font-size:28px;font-weight:800}.year{border:0;background:transparent;font-size:18px;font-weight:700}
+*{box-sizing:border-box}html,body{width:100%;max-width:100%;overflow-x:hidden}body{margin:0;background:var(--bg);font-family:Arial,sans-serif;color:var(--text)}
+.app{width:100%;max-width:520px;margin:auto;min-height:100vh;min-height:100dvh;padding:20px 18px calc(112px + env(safe-area-inset-bottom))}
+.top{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center;margin:6px 4px 24px}
+.title{font-size:28px;font-weight:800;line-height:1.08;min-width:0;white-space:nowrap}.year{border:0;background:transparent;font-size:18px;font-weight:700}
 .balance,.mini,.movement,.panel{background:var(--card);border-radius:22px;box-shadow:0 8px 30px rgba(30,45,70,.06)}
 .balance{text-align:center;padding:30px 20px;margin-bottom:16px}.label{font-size:12px;color:var(--muted);font-weight:700;letter-spacing:.7px}
 .money{font-size:34px;font-weight:800;margin-top:9px}.twocol{display:grid;grid-template-columns:1fr 1fr;gap:14px}
@@ -16,11 +16,12 @@
 .section{font-size:20px;font-weight:800;margin:27px 4px 12px}.movement{display:grid;grid-template-columns:48px 1fr auto;gap:12px;align-items:center;padding:15px;margin-bottom:10px}
 .ico{width:48px;height:48px;border-radius:15px;background:#f3f5f8;display:grid;place-items:center;font-size:22px}
 .mname{font-weight:750}.sub{font-size:13px;color:var(--muted);margin-top:4px}.amt{font-weight:800;text-align:right}
-.fab{position:fixed;right:max(22px,calc((100vw - 520px)/2 + 22px));bottom:90px;width:62px;height:62px;border-radius:50%;border:0;background:var(--blue);color:white;font-size:34px;box-shadow:0 9px 25px rgba(20,119,248,.35)}
-.nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:min(100%,520px);height:74px;background:white;border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(5,1fr);z-index:5}
-.nav button{border:0;background:white;color:#737b87;font-size:11px}.nav .active{color:var(--blue);font-weight:800}.nav span{display:block;font-size:22px;margin-bottom:3px}
+.fab{position:fixed;right:max(22px,calc((100vw - 520px)/2 + 22px));bottom:calc(96px + env(safe-area-inset-bottom));width:62px;height:62px;border-radius:50%;border:0;background:var(--blue);color:white;font-size:34px;box-shadow:0 9px 25px rgba(20,119,248,.35);z-index:6}
+.nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:min(100%,520px);height:calc(82px + env(safe-area-inset-bottom));padding-bottom:env(safe-area-inset-bottom);background:white;border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(5,minmax(0,1fr));z-index:5}
+.nav button{min-width:0;border:0;background:white;color:#5f6874;font-size:11px;font-weight:600;padding:7px 2px;line-height:1.15;display:flex;flex-direction:column;align-items:center;justify-content:center;white-space:nowrap}.nav .active{color:var(--blue);font-weight:800}.nav span{display:block;font-size:22px;margin-bottom:4px;line-height:1}
 .page{display:none}.page.active{display:block}.panel{padding:18px;margin-bottom:12px}
 input,select{width:100%;padding:13px;border:1px solid #e3e7ed;border-radius:12px;font-size:16px;background:white;margin:5px 0 12px}
+.top .year{width:auto;min-width:88px;max-width:110px;padding:8px 28px 8px 8px;margin:0;border:0;border-radius:10px;background:transparent;font-size:18px;font-weight:700}
 .primary{width:100%;border:0;border-radius:14px;background:var(--blue);color:#fff;font-weight:800;padding:14px;font-size:16px}
 .secondary{width:100%;border:1px solid #e1e5ea;border-radius:14px;background:white;color:var(--text);font-weight:700;padding:13px;margin-top:8px}
 .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}.small{font-size:12px;color:var(--muted)}
@@ -46,6 +47,17 @@ textarea{width:100%;min-height:90px;border:1px solid #e3e7ed;border-radius:12px;
 .versionMark{text-align:center;color:var(--muted);font-size:11px;padding:12px 0 92px}
 .account-strip{display:flex;justify-content:space-between;align-items:center;margin:0 4px 10px;padding:10px 2px}.eyebrow{font-size:10px;font-weight:800;letter-spacing:.8px;color:var(--muted)}.sync-status{font-size:11px;color:var(--muted);margin:0 4px 14px}.account-panel h2{margin:5px 0 8px}
 #pdfPreviewPage,#pdfPreviewPage *{color:#111!important}#pdfPreviewPage .reportTable th,#pdfPreviewPage .reportTable td{border-color:#bbb!important}
+@media (max-width:380px){
+ .app{padding-left:14px;padding-right:14px}
+ .top{gap:8px;margin-left:2px;margin-right:2px}
+ .title{font-size:24px}
+ .top .year{min-width:82px;max-width:96px;font-size:17px;padding-left:6px;padding-right:24px}
+ .twocol{gap:10px}
+ .mini{padding:18px 14px}
+ .mini .money{font-size:21px}
+ .nav button{font-size:10.5px}
+ .nav span{font-size:21px}
+}
 </style></head>
 <body><div id="lockScreen"><div class="panel"><h2>Mis Cuentas PRO</h2><p class="small">Introduce tu PIN</p><input id="pinEntry" type="password" inputmode="numeric" maxlength="8"><button class="primary" onclick="unlockApp()">Entrar</button><p id="pinError" class="small red"></p></div></div><div class="app">
 <header class="account-strip"><div><span class="eyebrow">TU NEGOCIO, AL DÍA</span><div id="accountName">Modo local</div></div><button class="tiny" onclick="show('settings')">Mi cuenta ↗</button></header><p id="syncStatus" class="sync-status" role="status" aria-live="polite">Abriendo tu copia local…</p>
