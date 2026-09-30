@@ -3,12 +3,15 @@ package com.miscuentas.pro;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Intent;
+import android.graphics.Insets;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.print.PrintAttributes;
 import android.print.PrintDocumentAdapter;
 import android.print.PrintManager;
 import android.util.Base64;
+import android.view.WindowInsets;
 import android.webkit.*;
 import androidx.webkit.WebViewAssetLoader;
 import org.json.JSONObject;
@@ -25,6 +28,7 @@ public class MainActivity extends Activity {
     private String legacy = "{}";
     private ValueCallback<Uri[]> upload;
     private byte[] pendingFile;
+    private int bottomInsetCssPx = 0;
 
     @Override protected void onCreate(Bundle state) {
         super.onCreate(state);
@@ -32,12 +36,35 @@ public class MainActivity extends Activity {
         setContentView(webView);
 
         webView.setOnApplyWindowInsetsListener((v, insets) -> {
-            v.setPadding(
-                    insets.getSystemWindowInsetLeft(),
-                    insets.getSystemWindowInsetTop(),
-                    insets.getSystemWindowInsetRight(),
-                    insets.getSystemWindowInsetBottom()
-            );
+            int left;
+            int top;
+            int right;
+            int bottom;
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                Insets bars = insets.getInsets(WindowInsets.Type.systemBars());
+                Insets gestures = insets.getInsets(WindowInsets.Type.systemGestures());
+
+                left = bars.left;
+                top = bars.top;
+                right = bars.right;
+                bottom = Math.max(bars.bottom, gestures.bottom);
+            } else {
+                left = insets.getSystemWindowInsetLeft();
+                top = insets.getSystemWindowInsetTop();
+                right = insets.getSystemWindowInsetRight();
+                bottom = insets.getSystemWindowInsetBottom();
+            }
+
+            float density = getResources().getDisplayMetrics().density;
+            bottomInsetCssPx = Math.max(0, Math.round(bottom / density));
+
+            // Arriba/laterales se respetan de forma nativa.
+            // El espacio inferior lo aplica la propia página para que los
+            // botones fijos no queden debajo de la barra de gestos.
+            v.setPadding(left, top, right, 0);
+            applyBottomInsetToPage();
+
             return insets;
         });
 
@@ -92,6 +119,8 @@ public class MainActivity extends Activity {
 
             @Override
             public void onPageFinished(WebView view, String url) {
+                applyBottomInsetToPage();
+
                 if (!migrating) return;
 
                 if (OLD.equals(url)) {
@@ -221,6 +250,17 @@ public class MainActivity extends Activity {
         );
 
         webView.loadUrl(migrating ? OLD : HOME);
+    }
+
+    private void applyBottomInsetToPage() {
+        if (webView == null) return;
+
+        webView.evaluateJavascript(
+                "document.documentElement.style.setProperty('--android-bottom-inset','"
+                        + bottomInsetCssPx
+                        + "px');",
+                null
+        );
     }
 
     private void migrationError() {
