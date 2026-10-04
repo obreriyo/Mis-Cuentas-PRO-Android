@@ -1,0 +1,34 @@
+name: Cambiar nombres PDF de Mis Cuentas PRO
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  actualizar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Nombrar ingresos por mes y año
+        run: |
+          python3 - <<'PYUPDATE'
+          from pathlib import Path
+          old = '`Mis_Cuentas_PRO_${y}_${String(m).padStart(2,"0")}.pdf`'
+          new = '`Ingresos-${MONTHS[m-1].toLowerCase()}-${y}.pdf`'
+          for folder in ['app/src/main/assets', 'web']:
+              for name in ['app.js', 'index.html']:
+                  p = Path(folder) / name
+                  if p.exists():
+                      s = p.read_text()
+                      if old not in s and new not in s:
+                          raise SystemExit('No se encuentra el nombre esperado en ' + str(p))
+                      p.write_text(s.replace(old, new))
+          PYUPDATE
+      - name: Guardar cambios
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add app/src/main/assets web
+          if ! git diff --cached --quiet; then
+            git commit -m "Nombrar informes de ingresos por mes y año"
+            git push
+          fi
