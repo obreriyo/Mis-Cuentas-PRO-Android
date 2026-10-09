@@ -1,6 +1,6 @@
 {
   "name": "Mis Cuentas PRO",
-  "short_name": "Mis Cuentas",
+  "short_name": "Mis Cuentas PRO",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

@@ -28,12 +28,20 @@ public class MainActivity extends Activity {
     private String legacy = "{}";
     private ValueCallback<Uri[]> upload;
     private byte[] pendingFile;
+    private String pendingFileName;
     private int bottomInsetCssPx = 0;
 
     @Override protected void onCreate(Bundle state) {
         super.onCreate(state);
         webView = new WebView(this);
         setContentView(webView);
+        if (Build.VERSION.SDK_INT >= 33) {
+            getOnBackInvokedDispatcher().registerOnBackInvokedCallback(
+                android.window.OnBackInvokedDispatcher.PRIORITY_DEFAULT,
+                this::onBackPressed
+            );
+        }
+
 
         webView.setOnApplyWindowInsetsListener((v, insets) -> {
             int left;
@@ -112,6 +120,36 @@ public class MainActivity extends Activity {
                     WebResourceRequest request
             ) {
                 String url = request.getUrl().toString();
+                Uri destination = request.getUrl();
+                boolean callLink = "tel".equals(destination.getScheme())
+                        && destination.getSchemeSpecificPart().matches("\\+?[0-9]{7,15}");
+                boolean whatsappLink = "https".equals(destination.getScheme())
+                        && "wa.me".equals(destination.getHost())
+                        && destination.getPath() != null
+                        && destination.getPath().matches("/[0-9]{7,15}")
+                        && (destination.getQuery() == null || (destination.getQueryParameterNames().size() == 1 && destination.getQueryParameterNames().contains("text")));
+                if (request.isForMainFrame() && request.hasGesture() && (callLink || whatsappLink)) {
+                    try {
+                        startActivity(new Intent(callLink ? Intent.ACTION_DIAL : Intent.ACTION_VIEW, destination));
+                    } catch (android.content.ActivityNotFoundException e) {
+                        new AlertDialog.Builder(MainActivity.this)
+                            .setMessage(callLink ? "No se encontró una aplicación para llamar." : "No se pudo abrir WhatsApp o el navegador.")
+                            .setPositiveButton("Aceptar", null).show();
+                    }
+                    return true;
+                }
+
+                if (request.isForMainFrame() && (url.equals("mailto:raulito-sp@hotmail.com") || url.startsWith("mailto:raulito-sp@hotmail.com?"))) {
+                    try {
+                        startActivity(new Intent(Intent.ACTION_SENDTO, Uri.parse(url)));
+                    } catch (android.content.ActivityNotFoundException e) {
+                        new AlertDialog.Builder(MainActivity.this)
+                            .setMessage("Escribe a raulito-sp@hotmail.com desde tu correo. Asunto: Eliminar cuenta Mis Cuentas PRO.")
+                            .setPositiveButton("Aceptar", null).show();
+                    }
+                    return true;
+                }
+
 
                 return !url.equals(HOME)
                         && !(migrating && url.equals(OLD));
@@ -196,9 +234,12 @@ public class MainActivity extends Activity {
 
                 upload = callback;
 
+                String[] accepted = params.getAcceptTypes();
+                boolean images = false;
+                for (String type : accepted) if (type != null && type.startsWith("image/")) images = true;
                 Intent intent =
                         new Intent(Intent.ACTION_GET_CONTENT)
-                                .setType("application/json")
+                                .setType(images ? "image/*" : "application/json")
                                 .addCategory(
                                         Intent.CATEGORY_OPENABLE
                                 );
@@ -239,6 +280,7 @@ public class MainActivity extends Activity {
             }
         });
 
+        webView.addJavascriptInterface(new ContactBridge(), "AndroidContacts");
         webView.addJavascriptInterface(
                 new PrintBridge(),
                 "AndroidPrint"
@@ -274,6 +316,21 @@ public class MainActivity extends Activity {
                         (d, w) -> finish()
                 )
                 .show();
+    }
+
+    private class ContactBridge {
+        @JavascriptInterface
+        public void openWhatsApp(String phone, String message) {
+            runOnUiThread(() -> {
+                if (!HOME.equals(webView.getUrl()) || phone == null || !phone.matches("[0-9]{7,15}") || message == null || message.length() > 4000) return;
+                Uri destination = new Uri.Builder().scheme("https").authority("wa.me").appendPath(phone).appendQueryParameter("text", message).build();
+                try {
+                    startActivity(new Intent(Intent.ACTION_VIEW, destination));
+                } catch (android.content.ActivityNotFoundException e) {
+                    new AlertDialog.Builder(MainActivity.this).setMessage("No se pudo abrir WhatsApp o el navegador.").setPositiveButton("Aceptar", null).show();
+                }
+            });
+        }
     }
 
     private class PrintBridge {
@@ -321,10 +378,12 @@ public class MainActivity extends Activity {
             runOnUiThread(() -> {
                 if (!HOME.equals(webView.getUrl())
                         || pendingFile != null) {
+                    notifyFileSaved(false, name);
                     return;
                 }
 
                 try {
+                    pendingFileName = name;
                     pendingFile =
                             Base64.decode(
                                     base64,
@@ -341,6 +400,8 @@ public class MainActivity extends Activity {
                                     .setType(
                                             "application/pdf".equals(mime)
                                                     ? "application/pdf"
+                                                    : "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet".equals(mime)
+                                                    ? "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                                                     : "application/json"
                                     )
                                     .putExtra(
@@ -361,7 +422,12 @@ public class MainActivity extends Activity {
         }
     }
 
+    private void notifyFileSaved(boolean saved, String name) {
+        webView.evaluateJavascript("window.CABackups && window.CABackups.nativeSaved(" + saved + "," + org.json.JSONObject.quote(name == null ? "" : name) + ");", null);
+    }
+
     private void fileError() {
+        notifyFileSaved(false, pendingFileName);
         new AlertDialog.Builder(this)
                 .setMessage(
                         "No se pudo guardar el archivo. Vuelve a intentarlo."
@@ -391,6 +457,7 @@ public class MainActivity extends Activity {
         }
 
         if (request == 43) {
+            boolean saved = false;
             if (result == RESULT_OK
                     && intent != null
                     && intent.getData() != null
@@ -403,21 +470,27 @@ public class MainActivity extends Activity {
                                                 intent.getData()
                                         )
                 ) {
+                    if (out == null) throw new java.io.IOException("No se pudo abrir el destino");
                     out.write(pendingFile);
+                    out.flush();
 
+                    saved = true;
                 } catch (Exception e) {
+                    saved = false;
                     fileError();
                 }
             }
 
             pendingFile = null;
+            notifyFileSaved(saved, pendingFileName);
+            pendingFileName = null;
         }
     }
 
     @Override
     public void onBackPressed() {
         webView.evaluateJavascript(
-                "(function(){var o=document.getElementById('pdfPreviewOverlay');"
+                "(function(){var d=document.querySelector('dialog[open]');if(d){d.close();return 'preview';}var o=document.getElementById('pdfPreviewOverlay');"
                         + "if(o){o.remove();return 'preview';}"
                         + "var p=document.querySelector('.page.active');return p?p.id:'home';})()",
                 value -> {
@@ -427,7 +500,7 @@ public class MainActivity extends Activity {
 
                     if (!"\"home\"".equals(value)) {
                         webView.evaluateJavascript(
-                                "handlingAndroidBack=true;activatePage('home');handlingAndroidBack=false;",
+                                "returnToPreviousPage();",
                                 null
                         );
                         return;

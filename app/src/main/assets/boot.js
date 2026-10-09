@@ -4,7 +4,7 @@
  async function start(){
   try{
    if(localStorage.getItem('mcp_pin_hash'))document.getElementById('lockScreen').style.display='flex';
-   await load('app.js');await load('cloud.js');
+   await load('payments.js');await load('app.js');for(const n of ['firebase-app-compat.js','firebase-auth-compat.js','firebase-firestore-compat.js'])await load('vendor/'+n);await load('sync-codec.js');await load('cloud.js');
    if(localStorage.getItem('mcp_pin_hash'))document.getElementById('lockScreen').style.display='flex';
    updateFabForPage();
    if('serviceWorker' in navigator&&!window.AndroidPrint)navigator.serviceWorker.register('./sw.js').catch(()=>{});
