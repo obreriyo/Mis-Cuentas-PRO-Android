@@ -15,7 +15,7 @@ jobs:
 
         from pathlib import Path
 
-        s=Path(''app/src/main/assets/plans.js'').read_text()
+        s=Path(''app/src/main/assets/plans.js'').read_text(encoding=''utf-8'')
 
         if ''aplicación personal'' not in s:raise SystemExit(''Ejecuta primero mis-cuentas-pro-personal.yml y espera a que termine correctamente.'')
 
@@ -55,7 +55,7 @@ jobs:
 
         from pathlib import Path
 
-        s=Path(''app/src/main/assets/plans.js'').read_text()
+        s=Path(''app/src/main/assets/plans.js'').read_text(encoding=''utf-8'')
 
         if ''aplicación personal'' not in s:raise SystemExit(''Ejecuta primero mis-cuentas-pro-personal.yml y espera a que termine correctamente.'')
 
