@@ -1,0 +1,10 @@
+const a=require('node:assert/strict'),path=require('node:path'),p=require('../policy.cjs');
+const root=path.resolve('assets');a.equal(p.asset(root,p.HOME),path.join(root,'index.html'));
+for(const raw of ['https://evil.test/assets/index.html',p.ORIGIN+'/assets/%2e%2e%2fsecret',p.ORIGIN+'/assets/a%5cb',p.ORIGIN+'/assets/a%00b'])a.throws(()=>p.asset(root,raw));
+for(const name of ['../copia.json','CON.pdf','archivo.exe','a/b.pdf','a\\b.pdf','x.json.','a:foo.pdf'])a.throws(()=>p.fileName(name));
+for(const name of ['copia.json','Informe 2026.pdf','datos.xlsx'])a.equal(p.fileName(name),name);
+a.equal(p.bytes(Buffer.from('prueba').toString('base64')).toString(),'prueba');for(const s of ['','a','!!!!','AA=A'])a.throws(()=>p.bytes(s));
+a.throws(()=>p.whatsapp('123','hola'));a.throws(()=>p.whatsapp('34600111222','x'.repeat(4001)));
+const u=p.whatsapp('34600111222','Desde Peluquería le recordamos su cita.');a.equal(new URL(u).searchParams.get('text'),'Desde Peluquería le recordamos su cita.');a(p.external(u));
+for(const u of ['file:///etc/passwd','javascript:alert(1)','https://wa.me.evil.test/34600111222','https://github.com/obreriyo/other','https://evil.test','https://wa.me/abc'])a.equal(p.external(u),false);
+console.log('OK Rutas, nombres, tamaños, codificación y enlaces externos');

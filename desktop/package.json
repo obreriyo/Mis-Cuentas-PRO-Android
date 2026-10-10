@@ -1,0 +1,60 @@
+{
+  "name": "mis-cuentas-pro-windows",
+  "productName": "Mis Cuentas PRO",
+  "version": "2.1.0",
+  "description": "Contabilidad, agenda y TPV para Windows",
+  "author": "Obreriyo",
+  "private": true,
+  "main": "main.cjs",
+  "scripts": {
+    "prepare-assets": "node prepare.cjs",
+    "start": "electron .",
+    "test": "node tests/policy.cjs && node tests/adapter.cjs",
+    "test:desktop": "node tests/smoke.cjs",
+    "dist": "electron-builder --win nsis --x64 --publish never"
+  },
+  "devDependencies": {
+    "electron": "44.7.0",
+    "electron-builder": "26.15.3",
+    "playwright": "1.58.2"
+  },
+  "build": {
+    "appId": "com.obreriyo.miscuentaspro.windows",
+    "productName": "Mis Cuentas PRO",
+    "asar": true,
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "main.cjs",
+      "preload.cjs",
+      "policy.cjs",
+      "assets/**/*",
+      "icon.ico",
+      "package.json"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "icon.ico",
+      "artifactName": "Mis-Cuentas-PRO-Windows-${version}-Instalar.exe",
+      "signAndEditExecutable": false
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowElevation": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Mis Cuentas PRO",
+      "deleteAppDataOnUninstall": false
+    }
+  }
+}

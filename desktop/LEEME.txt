@@ -1,0 +1,12 @@
+MIS CUENTAS PRO PARA WINDOWS 10/11 (64 bits)
+
+Ejecuta Mis-Cuentas-PRO-Windows-2.1.0-Instalar.exe e instala para tu usuario.
+Incluye la contabilidad, agenda, clientes, servicios, TPV, stock y copias de la app.
+Las actualizaciones conservan los datos de tu usuario, fuera del instalador.
+El modo invitado guarda sus datos en este ordenador. Para compartir datos con
+Android, utiliza la misma cuenta y comprueba que termine la sincronización.
+WhatsApp abre el navegador con el mensaje preparado; debes confirmar el envío.
+Las copias y documentos permiten elegir dónde guardar el archivo en Windows.
+Antes de cambiar de ordenador, guarda una copia desde la app.
+Esta primera versión no tiene certificado comercial de Windows; Windows puede
+mostrar una advertencia de editor desconocido. La firma de Android es diferente.
