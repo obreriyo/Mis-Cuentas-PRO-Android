@@ -8,7 +8,7 @@ android {
         applicationId 'com.miscuentas.pro'
         minSdk 24
         targetSdk 35
-        versionCode 6
+        versionCode 7
         versionName '2.1.0'
     }
 }
