@@ -40,7 +40,7 @@ function render(){
 }
 function paymentSummaryHTML(movements,title='Cobrado por forma de pago'){
  const totals=CAPayments.split(movements);
- return `<h3>${title}</h3><table class="reportTable"><tr><th>Forma de cobro</th><th>Importe (IVA incluido)</th></tr>${Object.entries(CAPayments.labels).map(([key,label])=>`<tr><td>${label}</td><td>${eur(totals[key])}</td></tr>`).join('')}<tr><th>Total cobrado</th><th>${eur(totals.total)}</th></tr></table>${totals.unspecifiedCount?'<p class="small">Los ingresos sin forma de cobro se muestran como Sin especificar. Puedes clasificarlos en Movimientos.</p>':''}`;
+ return `<h3>${title}</h3><table class="reportTable"><tr><th>Forma de cobro</th><th>Importe (IVA incluido)</th></tr>${Object.entries(CAPayments.labels).filter(([key])=>Math.round(totals[key]*100)!==0).map(([key,label])=>`<tr><td>${label}</td><td>${eur(totals[key])}</td></tr>`).join('')}<tr><th>Total cobrado</th><th>${eur(totals.total)}</th></tr></table>${totals.unspecifiedCount?'<p class="small">Los ingresos sin forma de cobro se muestran como Sin especificar. Puedes clasificarlos en Movimientos.</p>':''}`;
 }
 function selectedIncome(y,m){return data.movements.filter(x=>x.type==='Ingreso'&&Number(x.date.slice(0,4))===y&&(m==null||Number(x.date.slice(5,7))===m))}
 function reportedIncome(y,m){return selectedIncome(y,m)}
@@ -155,7 +155,7 @@ function makeMonthlyPdfBytes(){
  if(cy<190){flush();header()}
  cy-=34;add("Desglose por forma de cobro (IVA incluido)",45,11,true);cy-=22;
  const breakdown=CAPayments.split(reportedIncome(y,m));
- for(const [key,label] of Object.entries(CAPayments.labels)){add(label,45,10);add(eur(breakdown[key]),300,10);cy-=20}
+ for(const [key,label] of Object.entries(CAPayments.labels)){if(Math.round(breakdown[key]*100)===0)continue;add(label,45,10);add(eur(breakdown[key]),300,10);cy-=20}
  add("TOTAL COBRADO",45,10,true);add(eur(breakdown.total),300,10,true);cy-=20;
  flush();
  const enc=new TextEncoder();let objects=[];
