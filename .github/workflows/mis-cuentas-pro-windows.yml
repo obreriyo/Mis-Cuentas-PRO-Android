@@ -20,6 +20,7 @@ jobs:
         if ''aplicación personal'' not in s:raise SystemExit(''Ejecuta primero mis-cuentas-pro-personal.yml y espera a que termine correctamente.'')
 
         PYREADY'
+      shell: bash
     - uses: actions/setup-node@v4
       with:
         node-version: '22'
@@ -59,6 +60,7 @@ jobs:
         if ''aplicación personal'' not in s:raise SystemExit(''Ejecuta primero mis-cuentas-pro-personal.yml y espera a que termine correctamente.'')
 
         PYREADY'
+      shell: bash
     - uses: actions/setup-node@v4
       with:
         node-version: '22'
