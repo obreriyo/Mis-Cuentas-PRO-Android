@@ -1,6 +1,4 @@
 name: Mis Cuentas PRO Windows - instalador
-true:
-  workflow_dispatch: null
 permissions:
   contents: write
 concurrency:
@@ -98,3 +96,5 @@ jobs:
           desktop/LEEME.txt
 
           '
+'on':
+  workflow_dispatch: null
